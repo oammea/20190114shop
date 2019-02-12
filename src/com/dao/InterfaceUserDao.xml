@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.InterfaceUserDao">
+<!-- u_id u_username u_password u_sex u_phone u_cardType u_address u_wallet -->
+	<select id="findById" parameterType="ShopUser" resultType="ShopUser">
+		select * from shopuser where u_id =#{u_id}
+	</select>
+	<select id="findByName" parameterType="ShopUser" resultType="ShopUser">
+		select * from shopuser where u_username =#{u_username}
+	</select>
+	<select id="selectUserByName" parameterType="String" resultType="ShopUser">
+		select * from ShopUser where u_username =#{u_username}
+	</select>
+	<select id="findAdmin" parameterType="ShopUser" resultType="Integer">
+		select adm_id from adm where u_id = #{u_id}
+	</select>
+	<insert id="insert" parameterType="ShopUser">
+		insert into shopuser values(u_id.nextval,#{u_username},#{u_password},#{u_sex},#{u_phone},#{u_cardType},#{u_address},#{u_wallet})
+	</insert>
+	<select id="findSize" parameterType="Page" resultType="Integer">
+		select count(u_id) from shopuser
+				<where>
+					<if test=" u_username != null and u_username != ''">
+							u_username like '%' || #{user.u_username} || '%'
+					</if>
+					<if test=" u_sex != null and u_sex !=''">
+						and u_sex like '%' || #{user.u_username} || '%'
+					</if>
+				</where>
+	</select>
+	<select id="findByPage" parameterType="Page" resultType="ShopUser">
+	<!-- u_id u_username u_password u_sex u_phone u_cardType u_address u_wallet -->
+		select u_id,u_username,u_password,u_sex,u_phone,u_cardType,u_address,u_wallet from(
+			select rownum rid,u_id,u_username,u_password,u_sex,u_phone,u_cardType,u_address,u_wallet
+				from shopuser
+				<where>
+					#{end} >= rownum
+					<if test=" u_username != null and u_username != ''">
+						and u_username like '%' || #{user.u_username} || '%'
+					</if>
+					<if test=" u_sex != null and u_sex !=''">
+						and u_sex like '%' || #{user.u_username} || '%'
+					</if>
+				</where>
+		) where rid >=  #{begin}
+	</select>
+</mapper>

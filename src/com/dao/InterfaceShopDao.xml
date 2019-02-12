@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.InterfaceShopDao">
+	<insert id="addgoods" parameterType="Goods">
+	<!-- g_id g_name g_price g_type g_shortage -->
+		insert into goods values(g_id.nextval,#{g_name},#{g_price},#{g_type},#{u_id},#{g_shortage})
+	</insert>
+	<select id="findSize" parameterType="GoodsPage" resultType="Integer">
+		select count(g_id) from goods
+				<where>
+					<if test=" u_id != null and u_id != ''">
+							u_id = #{u_id}
+					</if>
+										<if test=" g_name != null and g_name != ''">
+						and g_name like '%' || #{g_name} || '%'
+					</if>
+					<if test=" g_type != null and g_type != ''">
+						and g_type like '%' || #{g_type} || '%'
+					</if>
+				</where>
+	</select>
+	<select id="findById" parameterType="Goods" resultType="Goods">
+		select * from goods where g_id=#{g_id}
+	</select>
+	<update id="update" parameterType="Goods">
+		update goods set g_name=#{g_name},g_price=#{g_price},g_type=#{g_type},g_shortage=#{g_shortage}where g_id=#{g_id}
+	</update>
+	<select id="findByPage" parameterType="GoodsPage" resultType="Goods">
+	<!-- g_id g_name g_price g_type u_id -->
+		select g_id,g_name,g_price,g_type,u_id,g_shortage from(
+			select rownum rid,g_id,g_name,g_price,g_type,u_id,g_shortage
+				from goods 
+				<where>
+					#{end} >= rownum
+					<if test=" u_id != null and u_id != ''">
+						and u_id=#{u_id}
+					</if>
+					<if test=" g_name != null and g_name != ''">
+						and g_name like '%' || #{g_name} || '%'
+					</if>
+					<if test=" g_type != null and g_type != ''">
+						and g_type like '%' || #{g_type} || '%'
+					</if>
+				</where>
+		) where rid >=  #{begin}
+	</select>
+	<delete id="deleteById" parameterType="Goods">
+		delete goods where g_id=#{g_id}
+	</delete>
+	<insert id="insertaddress" parameterType="java.util.Map">
+		insert into address values(address_id.nextval,#{u_id},#{address_name})
+	</insert>
+	<insert id="insertorder" parameterType="Orders">
+		insert into orders values(d_id.nextval,#{g_id},#{g_amount},#{u_id},#{d_time},#{d_total},#{d_address},#{d_state})
+	</insert>
+	<select id="findAddressByU_id" parameterType="Integer" resultType="java.util.Map">
+		select * from address where u_id=#{u_id}
+	</select>
+	<select id="findOrderById" parameterType="Integer" resultType="java.util.Map">
+		select * from  orders,goods where goods.g_id =orders.g_id and orders.u_id=#{u_id}
+	</select>
+	
+	<select id="findOrderByD_id" parameterType="Orders" resultType="Orders">
+		select * from  orders where d_id=#{d_id}
+	</select>
+		<!-- d_id g_id g_amount u_id d_time d_total d_address d_state -->
+	<update id="updateorder" parameterType="Orders">
+		update orders set d_time=#{d_time},d_state=#{d_state} where d_id=#{d_id}
+	</update>
+</mapper>
